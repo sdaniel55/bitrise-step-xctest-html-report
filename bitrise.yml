@@ -11,6 +11,18 @@ app:
   - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
 
 workflows:
+  ci:
+    steps:
+    before_run:
+    - audit-this-step
+    steps:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
+    after_run:
+    - test
+
   test:
     steps:
     - script:
@@ -43,8 +55,11 @@ workflows:
         inputs:
         - content: |
             #!/bin/bash
-            'xcodebuild -project Xcode-10_default.xcodeproj -scheme Xcode-10_default build test -destination 
-            "platform=iOS Simulator,name=iPhone 7,OS=latest" -resultBundlePath ./ddata/Test.xcresult'
+            xcodebuild \
+                -project Xcode-10_default.xcodeproj \
+                -scheme Xcode-10_default build test \
+                -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
+                -resultBundlePath ./ddata/Test.xcresult
     - path::./:
         title: Test one test result
         run_if: true
