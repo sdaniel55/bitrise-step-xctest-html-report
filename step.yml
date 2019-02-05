@@ -1,0 +1,48 @@
+title: XCTestHTMLReport
+summary: Generate Xcode-like HTML report for Unit and UI Tests
+description: Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport
+website: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report
+source_code_url: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report
+support_url: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report/issues
+
+project_type_tags:
+  - ios
+  - macos
+  - react-native
+  
+type_tags:
+  - utility
+
+is_requires_admin_user: true
+is_always_run: false
+is_skippable: false
+
+toolkit:
+  go:
+    package_name: github.com/BirmacherAkos/bitrise-step-xctest-html-report
+
+inputs:
+  - test_result_path: ""
+    opts:
+      title: Xcode test result (.xctesresult) paths
+      summary: The paths of the Xcode test generated .xctesresult files.
+      description: |-
+        The paths of the Xcode test generated .xctesresult files.
+
+        **Separated by a new line**
+
+        * $BITRISE\_SOURCE\_DIR/test.xctestresult
+        * $BITRISE\_SOURCE\_DIR/test\_2.xctestresult
+        * ./test\_3.xctestresult
+      is_required: true
+
+  - verbose: "false"
+    opts:
+      title: Enable verbose log?
+      summary: Enable verbose log?
+      description: |
+        You can enable the verbose logging for troubleshooting purposes.
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
