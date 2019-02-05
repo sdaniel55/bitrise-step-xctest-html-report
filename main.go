@@ -30,7 +30,7 @@ func main() {
 
 	dir, err := os.Getwd()
 	if err != nil {
-		panic(fmt.Sprintf("Failed to get current directory, error: %s", err))
+		failf("Failed to get current directory, error: %s", err)
 	}
 
 	x := xcTestHTMLReport{
@@ -42,27 +42,46 @@ func main() {
 	//
 	// Install
 	{
+		log.Infof("Install XCTestHTMLReport via brew")
+
 		cmd := x.installCmd()
 		cmd.SetDir(dir).
 			SetStdout(os.Stdout).
 			SetStderr(os.Stderr)
 
 		if err := cmd.Run(); err != nil {
-			panic(fmt.Sprintf("Failed to install XCTestHTMLReport, error: %s", err))
+			failf("Failed to install XCTestHTMLReport, error: %s", err)
 		}
+
+		log.Successf("XCTestHTMLReport successfully installed")
+		fmt.Println()
 	}
 
 	// Generate report
 	//
 	{
+		info := "Generating html report"
+		if cfg.GenerateJUnit {
+			info = "Generating html and JUnit report"
+		}
+		log.Infof(info)
+
 		cmd := x.convertToHTMReportCmd()
 		cmd.SetDir(dir).
 			SetStdout(os.Stdout).
 			SetStderr(os.Stderr)
 
 		if err := cmd.Run(); err != nil {
-			panic(fmt.Sprintf("Failed to generate XCTestHTMLReport, error: %s", err))
+			failf("Failed to generate XCTestHTMLReport, error: %s", err)
 		}
+
+		info = "Html report successfully generated"
+		if cfg.GenerateJUnit {
+			info = "Html and JUnit reports successfully generated"
+		}
+
+		log.Successf(info)
+		fmt.Println()
 	}
 }
 

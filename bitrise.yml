@@ -114,6 +114,12 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            
             bitrise share start -c "${MY_STEPLIB_REPO_FORK_GIT_URL}"
-            bitrise share create --stepid "${BITRISE_STEP_ID}" --tag "${BITRISE_STEP_VERSION}" --git "${BITRISE_STEP_GIT_CLONE_URL}"
+
+            bitrise share create \
+                --stepid "${BITRISE_STEP_ID}" \
+                --tag "${BITRISE_STEP_VERSION}" \
+                --git "${BITRISE_STEP_GIT_CLONE_URL}"
+            
             bitrise share finish
