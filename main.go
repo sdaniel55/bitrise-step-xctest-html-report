@@ -16,7 +16,7 @@ import (
 type Config struct {
 	// XCHTMLReport
 	TestResults   string `env:"test_result_path,required"`
-	GenerateJUnit bool   `env:"verbose,required"`
+	GenerateJUnit bool   `env:"generate_junit,required"`
 
 	// Common
 	OutputDir string `env:"output_dir,dir"`
@@ -146,6 +146,8 @@ func main() {
 
 	//
 	// Export generated reports
+	log.Infof("Exporting generated reports")
+
 	var errors []error
 	htmlReport, junitReport, err := exportReports(x.resultBundlePaths[0], cfg.OutputDir, x.generateJUnit, &errors)
 	if err != nil {
