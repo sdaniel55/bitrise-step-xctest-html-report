@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io"
 	"os"
 	"path"
 	"strings"
 
-	"github.com/bitrise-io/go-utils/pathutil"
-
 	"github.com/bitrise-io/go-utils/log"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-tools/go-steputils/stepconf"
 	"github.com/bitrise-tools/go-steputils/tools"
 )
@@ -25,6 +23,57 @@ type Config struct {
 
 	// Log
 	Verbose bool `env:"verbose,required"`
+}
+
+// exportReports will search for the generated html and junit report
+// it will copy them to the provided outputDir
+// export the reports' path to env via envman
+func exportReports(pth, outputDir string, junit bool, errors *[]error) (string, string, error) {
+
+	// Find the generated reports
+	htmlReportPth := path.Join(pth, "index.html")
+	junitPth := path.Join(pth, "report.junit")
+
+	//
+	// Check the report files
+	{
+		if exists, err := pathutil.IsPathExists(htmlReportPth); err != nil {
+			return "", "", fmt.Errorf("Failed to check if path exists, error: %s", err)
+		} else if !exists {
+			*errors = append(*errors, fmt.Errorf("HTML report does not exists in: %s", htmlReportPth))
+		}
+
+		if junit {
+			if exists, err := pathutil.IsPathExists(junitPth); err != nil {
+				return "", "", fmt.Errorf("Failed to check if path exists, error: %s", err)
+			} else if !exists {
+				*errors = append(*errors, fmt.Errorf("JUnit report does not exists in: %s", junitPth))
+			}
+		}
+	}
+
+	//
+	// Copy reports
+	var exportedJUnitReportPth string
+	exportedHTMLReportPth := copy(htmlReportPth, outputDir, errors)
+	if junit {
+		exportedJUnitReportPth = copy(junitPth, outputDir, errors)
+	}
+
+	//
+	// Export reports
+	{
+		if err := tools.ExportEnvironmentWithEnvman("XC_HTML_Report", exportedHTMLReportPth); err != nil {
+			return "", "", fmt.Errorf("Failed to generate output - %s", "XC_HTML_Report")
+		}
+
+		if junit {
+			if err := tools.ExportEnvironmentWithEnvman("XC_JUnit_Report", exportedJUnitReportPth); err != nil {
+				return "", "", fmt.Errorf("Failed to generate output - %s", "XC_JUnit_Report")
+			}
+		}
+	}
+	return exportedHTMLReportPth, exportedJUnitReportPth, nil
 }
 
 func main() {
@@ -69,7 +118,7 @@ func main() {
 	}
 
 	//
-	// Generate report
+	// Generate reports
 	{
 		info := "Generating html report"
 		if cfg.GenerateJUnit {
@@ -96,52 +145,17 @@ func main() {
 	}
 
 	//
-	// Find the generated reports
-	htmlReportPth := path.Join(x.resultBundlePaths[0], "index.html")
-	junitPth := path.Join(x.resultBundlePaths[0], "report.junit")
-
-	//
-	// Check the report files
+	// Export generated reports
 	var errors []error
-	{
-		if exists, err := pathutil.IsPathExists(htmlReportPth); err != nil {
-			failf("Failed to check if path exists, error: %s", err)
-		} else if !exists {
-			errors = append(errors, fmt.Errorf("HTML report does not exists in: %s", htmlReportPth))
-		}
-
-		if x.generateJUnit {
-			if exists, err := pathutil.IsPathExists(junitPth); err != nil {
-				failf("Failed to check if path exists, error: %s", err)
-			} else if !exists {
-				errors = append(errors, fmt.Errorf("JUnit report does not exists in: %s", junitPth))
-			}
-		}
+	htmlReport, junitReport, err := exportReports(x.resultBundlePaths[0], cfg.OutputDir, x.generateJUnit, &errors)
+	if err != nil {
+		failf("Failed to export the generated reports, error: %s", err)
 	}
 
-	//
-	// Copy reports
-	var exportedJunitReportPth string
-	exportedHTMLReportPth := copy(htmlReportPth, cfg.OutputDir, &errors)
+	// Log envs
+	log.Successf("XC_HTML_Report => %s", htmlReport)
 	if x.generateJUnit {
-		exportedJunitReportPth = copy(junitPth, cfg.OutputDir, &errors)
-	}
-
-	//
-	// Export reports
-	if err := tools.ExportEnvironmentWithEnvman("XC_HTML_Report", exportedHTMLReportPth); err != nil {
-		failf("Failed to generate output - %s", "XC_HTML_Report")
-	}
-
-	if x.generateJUnit {
-		if err := tools.ExportEnvironmentWithEnvman("XC_JUnit_Report", exportedJunitReportPth); err != nil {
-			failf("Failed to generate output - %s", "XC_JUnit_Report")
-		}
-	}
-
-	log.Successf("XC_HTML_Report => %s", exportedHTMLReportPth)
-	if x.generateJUnit {
-		log.Successf("XC_JUnit_Report => %s", exportedJunitReportPth)
+		log.Successf("XC_JUnit_Report => %s", junitReport)
 	}
 
 	// Log errors
@@ -151,41 +165,4 @@ func main() {
 			log.Errorf(err.Error())
 		}
 	}
-}
-
-func copy(sourcePath, outputDir string, errors *[]error) string {
-	source, err := os.Open(sourcePath)
-	if err != nil {
-		*errors = append(*errors, fmt.Errorf("Failed to open file, error: %s", err))
-	}
-
-	defer func() {
-		if cerr := source.Close(); cerr != nil {
-			*errors = append(*errors, fmt.Errorf("Failed to close file, error: %s", cerr))
-		}
-	}()
-
-	destinationPath := path.Join(outputDir, path.Base(sourcePath))
-	destination, err := os.Create(destinationPath)
-	if err != nil {
-		*errors = append(*errors, fmt.Errorf("Failed to open file, error: %s", err))
-	}
-
-	defer func() {
-		if cerr := destination.Close(); cerr != nil {
-			*errors = append(*errors, fmt.Errorf("Failed to close file, error: %s", cerr))
-		}
-	}()
-
-	if _, err := io.Copy(destination, source); err != nil {
-		*errors = append(*errors, fmt.Errorf("Failed to copy file, error: %s", err))
-	}
-
-	return destinationPath
-}
-
-func failf(format string, v ...interface{}) {
-	log.Errorf(format, v...)
-	log.Warnf("For more details you can enable the debug logs by turning on the verbose step input.")
-	os.Exit(1)
 }
