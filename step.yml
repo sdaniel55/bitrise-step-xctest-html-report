@@ -36,6 +36,16 @@ inputs:
         * ./test\_3.xctestresult
       is_required: true
 
+  - output_dir: $BITRISE_DEPLOY_DIR
+    opts:
+      title: Output directory path
+      summary: This directory will contain the generated test reports.
+      description: |-
+        This directory will contain the generated test reports.
+
+        By default it the `$BITRISE\_DEPLOY_DIR`
+      is_required: "true"
+      
   - verbose: "false"
     opts:
       title: Enable verbose log?
