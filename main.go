@@ -28,7 +28,7 @@ type Config struct {
 // exportReports will search for the generated html and junit report
 // it will copy them to the provided outputDir
 // export the reports' path to env via envman
-func exportReports(pth, outputDir string, junit bool, errors *[]error) (string, string, error) {
+func exportReports(pth, outputDir string, generateJUnit bool, errors *[]error) (string, string, error) {
 
 	// Find the generated reports
 	htmlReportPth := path.Join(pth, "index.html")
@@ -43,7 +43,7 @@ func exportReports(pth, outputDir string, junit bool, errors *[]error) (string, 
 			*errors = append(*errors, fmt.Errorf("HTML report does not exists in: %s", htmlReportPth))
 		}
 
-		if junit {
+		if generateJUnit {
 			if exists, err := pathutil.IsPathExists(junitPth); err != nil {
 				return "", "", fmt.Errorf("Failed to check if path exists, error: %s", err)
 			} else if !exists {
@@ -56,7 +56,7 @@ func exportReports(pth, outputDir string, junit bool, errors *[]error) (string, 
 	// Copy reports
 	var exportedJUnitReportPth string
 	exportedHTMLReportPth := copy(htmlReportPth, outputDir, errors)
-	if junit {
+	if generateJUnit {
 		exportedJUnitReportPth = copy(junitPth, outputDir, errors)
 	}
 
@@ -67,7 +67,7 @@ func exportReports(pth, outputDir string, junit bool, errors *[]error) (string, 
 			return "", "", fmt.Errorf("Failed to generate output - %s", "XC_HTML_Report")
 		}
 
-		if junit {
+		if generateJUnit {
 			if err := tools.ExportEnvironmentWithEnvman("XC_JUnit_Report", exportedJUnitReportPth); err != nil {
 				return "", "", fmt.Errorf("Failed to generate output - %s", "XC_JUnit_Report")
 			}
