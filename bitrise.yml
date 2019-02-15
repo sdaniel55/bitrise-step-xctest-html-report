@@ -21,7 +21,6 @@ workflows:
     - golint:
     - errcheck:
     - go-test:
-    steps:
     - script:
         run_if: ".IsCI"
         title: Install Xcpretty
@@ -30,6 +29,7 @@ workflows:
             #!/bin/bash
             gem install xcpretty
     after_run:
+    - generate_test
     - test_one_test_result_with_junit
     - test_one_test_result_without_junit
     - test_one_test_result_with_junit_verbose
@@ -43,51 +43,47 @@ workflows:
   # One test result 
 
   test_one_test_result_with_junit:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./ddata/Test.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: false
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: ./ddata/Test.xcresult
+    - run_test
 
   test_one_test_result_without_junit:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./ddata/Test.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: false
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: ./ddata/Test.xcresult
-        - generate_junit: false
+    - run_test
 
   # 
   # One test result with verbose log enabled
 
   test_one_test_result_with_junit_verbose:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./ddata/Test.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: true
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: ./ddata/Test.xcresult
-        - verbose: true
+    - run_test
 
   test_one_test_result_without_junit_verbose:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./ddata/Test.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: true
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: ./ddata/Test.xcresult
-        - generate_junit: false
-        - verbose: true
+    - run_test
   
   # 
   # Multiple test result
@@ -95,67 +91,69 @@ workflows:
   test_multiple_test_result_with_junit:
     envs:
     - MULTIPLE_TEST_RESULT: "true"
-    before_run:
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: false
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: |
-            ./ddata/Test.xcresult
-            ./ddata/Test_2.xcresult
-            ./ddata/Test_3.xcresult
-        - verbose: true
+    - run_test
 
   test_multiple_test_result_without_junit:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: false
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: |
-            ./ddata/Test.xcresult
-            ./ddata/Test_2.xcresult
-            ./ddata/Test_3.xcresult
-        - generate_junit: false
-        - verbose: true
+    - run_test
 
   # 
   # Multiple test result with verbose log enabled
 
   test_multiple_test_result_with_junit_verbose:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: true
+    after_run:
     - common
-    steps:
-    - path::./:
-        title: Test one test result
-        run_if: true
-        inputs:
-        - test_result_path: |
-            ./ddata/Test.xcresult
-            ./ddata/Test_2.xcresult
-            ./ddata/Test_3.xcresult
-        - verbose: true
+    - run_test
 
   test_multiple_test_result_without_junit_verbose:
-    before_run:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: true
+    after_run:
     - common
+    - run_test
+
+  run_test:
     steps:
     - path::./:
         title: Test one test result
         run_if: true
         inputs:
-        - test_result_path: |
-            ./ddata/Test.xcresult
-            ./ddata/Test_2.xcresult
-            ./ddata/Test_3.xcresult
-        - generate_junit: false
-        - verbose: true
+        - test_result_path: $TEST_RESULT_PATH
+        - generate_junit: $GENERATE_JUNIT
+        - verbose: $VERBOSE
 
-  common:
+  generate_test:
     steps:
     - script:
         inputs:
@@ -174,7 +172,7 @@ workflows:
           but would break if the step is included in another `bitrise.yml`.
         run_if: true
         inputs:
-        - path: ${ORIGIN_SOURCE_DIR}/_tmp
+        - path: ./_tmp
         - is_create_path: true
     - script:
         title: Git clone sample app
@@ -183,7 +181,7 @@ workflows:
             #!/bin/bash
             git clone $SAMPLE_APP_URL .
     - script:
-        title: Generating Test.xcresult via Build-for-testing
+        title: Build-for-testing
         inputs:
         - content: |
             #!/bin/bash
@@ -194,32 +192,27 @@ workflows:
                 -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
                 -resultBundlePath ./ddata/Test.xcresult \
                 | tee $BITRISE_DEPLOY_DIR/xcodebuild.log | xcpretty
+
+  common:
+    steps:  
     - script:
-        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | ne ""}}'
-        title: Generating Test_2.xcresult via Build-for-testing
+        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "false"}}'
+        title: Copy Test.xcresult
         inputs:
         - content: |
             #!/bin/bash
             set -ex
-            set -o pipefail && xcodebuild \
-                -project Xcode-10_default.xcodeproj \
-                -scheme Xcode-10_default build test \
-                -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
-                -resultBundlePath ./ddata/Test_2.xcresult \
-                | tee $BITRISE_DEPLOY_DIR/xcodebuild_2.log | xcpretty
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
     - script:
-        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | ne ""}}'
-        title: Generating Test_3.xcresult via Build-for-testing
+        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "true"}}'
+        title: Copy & multiple Test.xcresult
         inputs:
         - content: |
             #!/bin/bash
             set -ex
-            set -o pipefail && xcodebuild \
-                -project Xcode-10_default.xcodeproj \
-                -scheme Xcode-10_default build test \
-                -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
-                -resultBundlePath ./ddata/Test_3.xcresult \
-                | tee $BITRISE_DEPLOY_DIR/xcodebuild_3.log | xcpretty
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_2.xcresult
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_3.xcresult
 
 
   # ----------------------------------------------------------------
