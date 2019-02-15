@@ -63,13 +63,13 @@ func exportReports(pth, outputDir string, generateJUnit bool, errors *[]error) (
 	//
 	// Export reports
 	{
-		if err := tools.ExportEnvironmentWithEnvman("XC_HTML_Report", exportedHTMLReportPth); err != nil {
-			return "", "", fmt.Errorf("Failed to generate output - %s", "XC_HTML_Report")
+		if err := tools.ExportEnvironmentWithEnvman("XC_HTML_REPORT", exportedHTMLReportPth); err != nil {
+			return "", "", fmt.Errorf("Failed to generate output - %s", "XC_HTML_REPORT")
 		}
 
 		if generateJUnit {
-			if err := tools.ExportEnvironmentWithEnvman("XC_JUnit_Report", exportedJUnitReportPth); err != nil {
-				return "", "", fmt.Errorf("Failed to generate output - %s", "XC_JUnit_Report")
+			if err := tools.ExportEnvironmentWithEnvman("XC_JUNIT_REPORT", exportedJUnitReportPth); err != nil {
+				return "", "", fmt.Errorf("Failed to generate output - %s", "XC_JUNIT_REPORT")
 			}
 		}
 	}
@@ -85,7 +85,7 @@ func main() {
 	stepconf.Print(cfg)
 	fmt.Println()
 
-	testResults := strings.Split(cfg.TestResults, "\n")
+	testResults := strings.Split(strings.TrimRight(cfg.TestResults, "\n"), "\n")
 	log.SetEnableDebugLog(cfg.Verbose)
 
 	dir, err := os.Getwd()
@@ -109,6 +109,8 @@ func main() {
 			SetStdout(os.Stdout).
 			SetStderr(os.Stderr)
 
+		log.Printf("$ %s", cmd.PrintableCommandArgs())
+
 		if err := cmd.Run(); err != nil {
 			failf("Failed to install XCTestHTMLReport, error: %s", err)
 		}
@@ -130,6 +132,8 @@ func main() {
 		cmd.SetDir(dir).
 			SetStdout(os.Stdout).
 			SetStderr(os.Stderr)
+
+		log.Printf("$ %s", cmd.PrintableCommandArgs())
 
 		if err := cmd.Run(); err != nil {
 			failf("Failed to generate XCTestHTMLReport, error: %s", err)
@@ -155,9 +159,9 @@ func main() {
 	}
 
 	// Log envs
-	log.Successf("XC_HTML_Report => %s", htmlReport)
+	log.Successf("XC_HTML_REPORT => %s", htmlReport)
 	if x.generateJUnit {
-		log.Successf("XC_JUnit_Report => %s", junitReport)
+		log.Successf("XC_JUNIT_REPORT => %s", junitReport)
 	}
 
 	// Log errors
