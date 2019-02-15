@@ -187,36 +187,39 @@ workflows:
         inputs:
         - content: |
             #!/bin/bash
+            set -ex
             set -o pipefail && xcodebuild \
                 -project Xcode-10_default.xcodeproj \
                 -scheme Xcode-10_default build test \
                 -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
                 -resultBundlePath ./ddata/Test.xcresult \
-                \| tee $BITRISE_DEPLOY_DIR/xcodebuild.log | xcpretty
+                | tee $BITRISE_DEPLOY_DIR/xcodebuild.log | xcpretty
     - script:
         run_if: '{{getenv "MULTIPLE_TEST_RESULT" | ne ""}}'
         title: Generating Test_2.xcresult via Build-for-testing
         inputs:
         - content: |
             #!/bin/bash
+            set -ex
             set -o pipefail && xcodebuild \
                 -project Xcode-10_default.xcodeproj \
                 -scheme Xcode-10_default build test \
                 -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
                 -resultBundlePath ./ddata/Test_2.xcresult \
-                \| tee $BITRISE_DEPLOY_DIR/xcodebuild_2.log | xcpretty
+                | tee $BITRISE_DEPLOY_DIR/xcodebuild_2.log | xcpretty
     - script:
         run_if: '{{getenv "MULTIPLE_TEST_RESULT" | ne ""}}'
         title: Generating Test_3.xcresult via Build-for-testing
         inputs:
         - content: |
             #!/bin/bash
+            set -ex
             set -o pipefail && xcodebuild \
                 -project Xcode-10_default.xcodeproj \
                 -scheme Xcode-10_default build test \
                 -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
                 -resultBundlePath ./ddata/Test_3.xcresult \
-                \| tee $BITRISE_DEPLOY_DIR/xcodebuild_3.log | xcpretty
+                | tee $BITRISE_DEPLOY_DIR/xcodebuild_3.log | xcpretty
 
 
   # ----------------------------------------------------------------
