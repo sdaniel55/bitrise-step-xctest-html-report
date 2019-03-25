@@ -22,7 +22,7 @@ toolkit:
     package_name: github.com/BirmacherAkos/bitrise-step-xctest-html-report
 
 inputs:
-  - test_result_path: ""
+  - test_result_path: $BITRISE_XCRESULT_PATH
     opts:
       title: Xcode test result (.xctesresult) paths
       summary: The paths of the Xcode test generated .xctesresult files.
