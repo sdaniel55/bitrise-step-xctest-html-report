@@ -1,0 +1,80 @@
+title: XCTestHTMLReport
+summary: Generate Xcode-like HTML report for Unit and UI Tests
+description: Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport
+website: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report
+source_code_url: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report
+support_url: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report/issues
+
+project_type_tags:
+  - ios
+  - macos
+  - react-native
+  
+type_tags:
+  - utility
+
+is_requires_admin_user: true
+is_always_run: false
+is_skippable: false
+
+toolkit:
+  go:
+    package_name: github.com/BirmacherAkos/bitrise-step-xctest-html-report
+
+inputs:
+  - test_result_path: $BITRISE_XCRESULT_PATH
+    opts:
+      title: Xcode test result (.xctesresult) paths
+      summary: The paths of the Xcode test generated .xctesresult files.
+      description: |-
+        The paths of the Xcode test generated .xctesresult files.
+
+        **Separated by a new line**
+
+        * $BITRISE\_SOURCE\_DIR/test.xctestresult
+        * $BITRISE\_SOURCE\_DIR/test\_2.xctestresult
+        * ./test\_3.xctestresult
+      is_required: true
+
+  - generate_junit: "true"
+    opts:
+      title: Generate JUnit report?
+      summary: Generate JUnit report?
+      description: |
+        Provide JUnit XML output if enabled.
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
+
+  - output_dir: $BITRISE_DEPLOY_DIR
+    opts:
+      title: Output directory path
+      summary: This directory will contain the generated test reports.
+      description: |-
+        This directory will contain the generated test reports.
+
+        By default it the `$BITRISE\_DEPLOY_DIR`
+      is_required: "true"
+      
+  - verbose: "false"
+    opts:
+      title: Enable verbose log?
+      summary: Enable verbose log?
+      description: |
+        You can enable the verbose logging for troubleshooting purposes.
+      is_required: true
+      value_options:
+        - "true"
+        - "false"
+
+outputs:
+  - XC_HTML_REPORT:
+    opts:
+      title: The path of the generated `HTML report`. Which was exported to the output\_dir ( $BITRISE\_DEPLOY\_DIR by default )
+      summary: The path of the generated `HTML report`. Which was exported to the output\_dir ( $BITRISE\_DEPLOY\_DIR by default )
+  
+  - XC_JUNIT_REPORT:
+    opts:
+      title: The path of the generated `JUnit report`. Which was exported to the output\_dir ( $BITRISE\_DEPLOY\_DIR by default )
+      summary: The path of the generated `JUnit report`. Which was exported to the output\_dir ( $BITRISE\_DEPLOY\_DIR by default )
