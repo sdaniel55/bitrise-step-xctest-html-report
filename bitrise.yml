@@ -1,0 +1,284 @@
+format_version: 7
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+  - BITRISE_STEP_ID: xctest-html-report
+  - BITRISE_STEP_VERSION: "0.1.0"
+  - BITRISE_STEP_GIT_CLONE_URL: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report.git
+
+  - SAMPLE_APP_URL: https://github.com/BirmacherAkos/bitrise-samples_apps_ios_xcode-10_default.git
+  - ORIGIN_SOURCE_DIR: $BITRISE_SOURCE_DIR
+
+  - MULTIPLE_TEST_RESULT: "false"
+
+workflows:
+  ci:
+    before_run:
+    - audit-this-step
+    steps:
+    - go-list:
+    - golint:
+    - errcheck:
+    - go-test:
+    - script:
+        run_if: ".IsCI"
+        title: Install Xcpretty
+        inputs:
+        - content: |
+            #!/bin/bash
+            gem install xcpretty
+    after_run:
+    - generate_test
+    - test_one_test_result_with_junit
+    - test_one_test_result_without_junit
+    - test_one_test_result_with_junit_verbose
+    - test_one_test_result_without_junit_verbose
+    - test_multiple_test_result_with_junit
+    - test_multiple_test_result_without_junit
+    - test_multiple_test_result_with_junit_verbose
+    - test_multiple_test_result_without_junit_verbose
+
+  # 
+  # One test result 
+
+  test_one_test_result_with_junit:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./Test.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: false
+    after_run:
+    - common
+    - run_test
+
+  test_one_test_result_without_junit:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./Test.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: false
+    after_run:
+    - common
+    - run_test
+
+  # 
+  # One test result with verbose log enabled
+
+  test_one_test_result_with_junit_verbose:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./Test.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: true
+    after_run:
+    - common
+    - run_test
+
+  test_one_test_result_without_junit_verbose:
+    envs:
+    - MULTIPLE_TEST_RESULT: "false"
+    - TEST_RESULT_PATH: ./Test.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: true
+    after_run:
+    - common
+    - run_test
+  
+  # 
+  # Multiple test result
+
+  test_multiple_test_result_with_junit:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: false
+    after_run:
+    - common
+    - run_test
+
+  test_multiple_test_result_without_junit:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: false
+    after_run:
+    - common
+    - run_test
+
+  # 
+  # Multiple test result with verbose log enabled
+
+  test_multiple_test_result_with_junit_verbose:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: true
+    - VERBOSE: true
+    after_run:
+    - common
+    - run_test
+
+  test_multiple_test_result_without_junit_verbose:
+    envs:
+    - MULTIPLE_TEST_RESULT: "true"
+    - TEST_RESULT_PATH: |
+        ./Test.xcresult
+        ./Test_2.xcresult
+        ./Test_3.xcresult
+    - GENERATE_JUNIT: false
+    - VERBOSE: true
+    after_run:
+    - common
+    - run_test
+
+  run_test:
+    steps:
+    - path::./:
+        title: Test one test result
+        run_if: true
+        inputs:
+        - test_result_path: $TEST_RESULT_PATH
+        - generate_junit: $GENERATE_JUNIT
+        - verbose: $VERBOSE
+
+  generate_test:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            cd ${ORIGIN_SOURCE_DIR}
+            rm -rf "./_tmp"
+            mkdir "_tmp"
+    - change-workdir:
+        title: Switch working dir to test / _tmp dir
+        description: |-
+          To prevent step testing issues, like referencing relative
+          files with just './some-file' in the step's code, which would
+          work for testing the step from this directory directly
+          but would break if the step is included in another `bitrise.yml`.
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true
+    - script:
+        title: Git clone sample app
+        inputs:
+        - content: |
+            #!/bin/bash
+            git clone $SAMPLE_APP_URL .
+    - script:
+        title: Build-for-testing
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            set -o pipefail && xcodebuild \
+                -project Xcode-10_default.xcodeproj \
+                -scheme Xcode-10_default build test \
+                -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
+                -resultBundlePath ./ddata/Test.xcresult \
+                | tee $BITRISE_DEPLOY_DIR/xcodebuild.log | xcpretty
+
+  common:
+    steps:
+    - change-workdir:
+        title: Switch working dir to test / _tmp dir
+        description: |-
+          To prevent step testing issues, like referencing relative
+          files with just './some-file' in the step's code, which would
+          work for testing the step from this directory directly
+          but would break if the step is included in another `bitrise.yml`.
+        run_if: true
+        inputs:
+        - path: ./_tmp
+        - is_create_path: true  
+    - script:
+        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "false"}}'
+        title: Copy Test.xcresult
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
+    - script:
+        run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "true"}}'
+        title: Copy & multiply Test.xcresult
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_2.xcresult
+            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_3.xcresult
+
+
+  # ----------------------------------------------------------------
+  # --- workflows to Share this step into a Step Library
+  audit-this-step:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            stepman audit --step-yml ./step.yml
+
+  share-this-step:
+    envs:
+      # if you want to share this step into a StepLib
+      - MY_STEPLIB_REPO_FORK_GIT_URL: $MY_STEPLIB_REPO_FORK_GIT_URL
+      - BITRISE_STEP_ID: $BITRISE_STEP_ID
+      - BITRISE_STEP_VERSION: $BITRISE_STEP_VERSION
+      - BITRISE_STEP_GIT_CLONE_URL: $BITRISE_STEP_GIT_CLONE_URL
+    description: |-
+      If this is the first time you try to share a Step you should
+      first call: $ bitrise share
+
+      This will print you a guide, and information about how Step sharing
+      works. Please read it at least once!
+
+      As noted in the Step sharing guide you'll have to fork the
+      StepLib you want to share this step into. Once you're done with forking
+      the repository you should set your own fork's git clone URL
+      in the `.bitrise.secrets.yml` file, or here in the `envs` section,
+      as the value of the `MY_STEPLIB_REPO_FORK_GIT_URL` environment.
+
+      You're now ready to share this Step, just make sure that
+      the `BITRISE_STEP_ID` and `BITRISE_STEP_VERSION`
+      environments are set to the desired values!
+
+      To share this Step into a StepLib you can just run: $ bitrise run share-this-step
+
+      Once it finishes the only thing left is to actually create a Pull Request,
+      the way described in the guide printed at the end of the process.
+    before_run:
+    - audit-this-step
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            
+            bitrise share start -c "${MY_STEPLIB_REPO_FORK_GIT_URL}"
+
+            bitrise share create \
+                --stepid "${BITRISE_STEP_ID}" \
+                --tag "${BITRISE_STEP_VERSION}" \
+                --git "${BITRISE_STEP_GIT_CLONE_URL}"
+            
+            bitrise share finish
