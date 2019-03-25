@@ -216,7 +216,7 @@ workflows:
             cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
     - script:
         run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "true"}}'
-        title: Copy & multiple Test.xcresult
+        title: Copy & multiply Test.xcresult
         inputs:
         - content: |
             #!/bin/bash
