@@ -1,3 +1,5 @@
+![Bitrise](https://img.shields.io/bitrise/dbb0739f4a28d789.svg?token=HI6D8qe117T1G_O9_Wn9ZQ)
+
 # XCTestHTMLReport
 
 Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport 
