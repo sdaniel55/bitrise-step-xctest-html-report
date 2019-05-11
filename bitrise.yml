@@ -21,6 +21,11 @@ workflows:
     - golint:
     - errcheck:
     - go-test:
+    - codecov:
+        run_if: .IsCI
+        inputs:
+        - other_options: -f ${GO_CODE_COVERAGE_REPORT_PATH}
+        - CODECOV_TOKEN: "$CODECOV_TOKEN"
     - script:
         run_if: ".IsCI"
         title: Install Xcpretty
