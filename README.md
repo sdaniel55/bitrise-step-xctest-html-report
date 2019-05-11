@@ -2,7 +2,7 @@
 
 # XCTestHTMLReport
 
-Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport
+Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport 
 
 # Example workflow in bitrise.yml
 
