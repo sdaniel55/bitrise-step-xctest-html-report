@@ -2,6 +2,23 @@
 
 Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport 
 
+# Example workflow in bitrise.yml
+
+```
+test-simulator-html-report:
+    steps:
+    - activate-ssh-key:
+        run_if: '{{getenv "SSH_RSA_PRIVATE_KEY" | ne ""}}'
+    - git-clone: {}
+    - cache-pull: {}
+    - xcode-test: {}
+    - git::https://github.com/BirmacherAkos/bitrise-step-xctest-html-report.git@feature/bitrise_configs:
+        inputs:
+        - test_result_path: "$BITRISE_XCRESULT_PATH"
+    - deploy-to-bitrise-io: {}
+    - cache-push: {}
+```
+
 
 ## How to use this Step
 
