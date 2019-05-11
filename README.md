@@ -1,3 +1,5 @@
+https://app.bitrise.io/app/dbb0739f4a28d789/status.svg?token=HI6D8qe117T1G_O9_Wn9ZQ&branch=master
+
 # XCTestHTMLReport
 
 Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport
