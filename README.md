@@ -1,5 +1,6 @@
 ![Bitrise](https://img.shields.io/bitrise/dbb0739f4a28d789.svg?token=HI6D8qe117T1G_O9_Wn9ZQ)
 ![Codecov](https://img.shields.io/codecov/c/github/BirmacherAkos/bitrise-step-xctest-html-report.svg?token=eeb445314cb94bbaa8ac01bc45cb3d37)
+[![Requirements Status](https://requires.io/github/BirmacherAkos/bitrise-step-xctest-html-report/requirements.svg?branch=master)](https://requires.io/github/BirmacherAkos/bitrise-step-xctest-html-report/requirements/?branch=master)
 
 
 # XCTestHTMLReport
