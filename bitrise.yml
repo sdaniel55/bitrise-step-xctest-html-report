@@ -21,6 +21,11 @@ workflows:
     - golint:
     - errcheck:
     - go-test:
+    - codecov:
+        run_if: .IsCI
+        inputs:
+        - other_options: -f ${GO_CODE_COVERAGE_REPORT_PATH}
+        - CODECOV_TOKEN: "$CODECOV_TOKEN"
     - script:
         run_if: ".IsCI"
         title: Install Xcpretty
@@ -154,6 +159,9 @@ workflows:
         - verbose: $VERBOSE
 
   generate_test:
+    envs:
+    - BITRISE_PROJECT_PATH: Xcode-10_default.xcodeproj
+    - BITRISE_SCHEME: Xcode-10_default
     steps:
     - script:
         inputs:
@@ -180,18 +188,7 @@ workflows:
         - content: |
             #!/bin/bash
             git clone $SAMPLE_APP_URL .
-    - script:
-        title: Build-for-testing
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            set -o pipefail && xcodebuild \
-                -project Xcode-10_default.xcodeproj \
-                -scheme Xcode-10_default build test \
-                -destination 'platform=iOS Simulator,name=iPhone 7,OS=latest' \
-                -resultBundlePath ./ddata/Test.xcresult \
-                | tee $BITRISE_DEPLOY_DIR/xcodebuild.log | xcpretty
+    - xcode-test: {}
 
   common:
     steps:
@@ -213,7 +210,7 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./Test.xcresult
     - script:
         run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "true"}}'
         title: Copy & multiply Test.xcresult
@@ -221,9 +218,9 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test.xcresult
-            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_2.xcresult
-            cp -R ${ORIGIN_SOURCE_DIR}/_tmp/ddata/Test.xcresult ./Test_3.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./Test.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./Test_2.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./Test_3.xcresult
 
 
   # ----------------------------------------------------------------

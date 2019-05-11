@@ -6,10 +6,10 @@ import (
 	"path"
 	"strings"
 
+	"github.com/bitrise-io/go-steputils/stepconf"
+	"github.com/bitrise-io/go-steputils/tools"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-tools/go-steputils/stepconf"
-	"github.com/bitrise-tools/go-steputils/tools"
 )
 
 // Config ...
