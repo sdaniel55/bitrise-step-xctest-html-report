@@ -223,6 +223,20 @@ workflows:
             cp -R $BITRISE_XCRESULT_PATH ./Test_3.xcresult
 
 
+  # ----------------------------------------------------------------	
+  # --- workflow to Release a new version	
+  create-release:	
+    steps:	
+    - script:	
+        title:	
+        inputs:	
+        - content: |	
+            #!/bin/bash	
+            set -e	
+            export CI=true	
+            releaseman create --version $BITRISE_STEP_VERSION
+
+
   # ----------------------------------------------------------------
   # --- workflows to Share this step into a Step Library
   audit-this-step:
