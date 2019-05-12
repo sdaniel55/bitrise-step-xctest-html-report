@@ -16,12 +16,12 @@ Public CI on Bitrise.io\
 https://app.bitrise.io/app/dbb0739f4a28d789#/builds
 
 # How to 
-Add this step **after** the **Xcode Test for iOS** step. The XCTestHTMLReport step will search for the `.xcresult` file in the `$BITRISE_XCRESULT_PATH` by default, because the **Xcode Test for iOS** step will generate it there.\
+Add this step **after** the **Xcode Test for iOS** step. This step will search for the `.xcresult` file in the `$BITRISE_XCRESULT_PATH` by default, because the **Xcode Test for iOS** step will generate it there.\
 *You can change the search dir by modifying the `test_result_path` step input.*
     
 ![example_workflow](https://github.com/BirmacherAkos/bitrise-step-xctest-html-report/blob/readme_img_store/readme_img_store/example_workflow.png)
 
-XCTestHTMLReport step will generate the test report files under the `$BITRISE_DEPLOY_DIR`. If you want to make that file available on Bitrise.io add the **Deploy to Bitrise.io - Apps, Logs, Artifacts** step **after** this step.
+The step will generate the test report files under the `$BITRISE_DEPLOY_DIR`. If you want to make that file available on Bitrise.io add the **Deploy to Bitrise.io - Apps, Logs, Artifacts** step **after** this step.
 
 ![example_report](https://github.com/BirmacherAkos/bitrise-step-xctest-html-report/blob/readme_img_store/readme_img_store/example_report.gif)
 
