@@ -1,4 +1,4 @@
-title: XCTestHTMLReport
+title: Generate XCTestHTMLReport
 summary: Generate Xcode-like HTML report for Unit and UI Tests
 description: Generate Xcode-like HTML report for Unit and UI Tests with XCTestHTMLReport
 website: https://github.com/BirmacherAkos/bitrise-step-xctest-html-report

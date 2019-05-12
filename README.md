@@ -1,4 +1,4 @@
-# XCTestHTMLReport
+# Generate XCTestHTMLReport
 
 Generate Xcode-like HTML report for Unit and UI Tests with [XCTestHTMLReport](https://github.com/TitouanVanBelle/XCTestHTMLReport)
 
