@@ -1,6 +1,12 @@
-## Changelog (Current version: 0.1.0)
+## Changelog (Current version: 0.1.1)
 
 -----------------
+
+### 0.1.1 (2019 May 12)
+* [f9bbb3e] prepare for 0.1.1
+* [2868535] rename 3
+* [e61f87a] step rename 2
+* [7e03a7e] rename the step
 
 ### 0.1.0 (2019 May 12)
 * [503afe8] prepare for 0.1.0
