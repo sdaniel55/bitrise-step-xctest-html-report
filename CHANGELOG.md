@@ -1,6 +1,12 @@
-## Changelog (Current version: 0.1.1)
+## Changelog (Current version: 0.1.2)
 
 -----------------
+
+### 0.1.2 (2019 May 23)
+* [26e9114] prepare for 0.1.2
+* [68d8f7a] add flutter as a supported platform; enable the always run option (#9)
+* [4cf8175] Update README.md
+* [d360ef8] Merge branch 'master' of github.com:BirmacherAkos/bitrise-step-xctest-html-report
 
 ### 0.1.1 (2019 May 12)
 * [f9bbb3e] prepare for 0.1.1
@@ -64,4 +70,4 @@
 
 -----------------
 
-Updated: 2019 May 12
+Updated: 2019 May 23
