@@ -1,6 +1,9 @@
-## Changelog (Current version: 0.1.2)
+## Changelog (Current version: 0.1.3)
 
 -----------------
+
+### 0.1.3 (2019 May 24)
+* [3c06146] prepare for 0.1.3
 
 ### 0.1.2 (2019 May 23)
 * [26e9114] prepare for 0.1.2
@@ -70,4 +73,4 @@
 
 -----------------
 
-Updated: 2019 May 23
+Updated: 2019 May 24
