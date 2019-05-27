@@ -33,9 +33,7 @@ test-simulator-html-report:
     - git-clone: {}
     - cache-pull: {}
     - xcode-test: {}
-    - git::https://github.com/BirmacherAkos/bitrise-step-xctest-html-report.git@feature/bitrise_configs:
-        inputs:
-        - test_result_path: "$BITRISE_XCRESULT_PATH"
+    - xctest-html-report: {}
     - deploy-to-bitrise-io: {}
     - cache-push: {}
 ```
