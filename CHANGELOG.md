@@ -1,6 +1,11 @@
-## Changelog (Current version: 0.1.3)
+## Changelog (Current version: 0.2.0)
 
 -----------------
+
+### 0.2.0 (2019 Nov 17)
+* [743bded] prepare for 0.2.0
+* [44a32c2] Index path fix (#12)
+* [cc93b36] Update README.md
 
 ### 0.1.3 (2019 May 24)
 * [3c06146] prepare for 0.1.3
@@ -73,4 +78,4 @@
 
 -----------------
 
-Updated: 2019 May 24
+Updated: 2019 Nov 17
