@@ -36,7 +36,7 @@ inputs:
         * ./test\_3.xctestresult
       is_required: true
 
-  - generate_junit: "true"
+  - generate_junit: "yes"
     opts:
       title: Generate JUnit report?
       summary: Generate JUnit report?
@@ -44,8 +44,8 @@ inputs:
         Provide JUnit XML output if enabled.
       is_required: true
       value_options:
-        - "true"
-        - "false"
+        - "yes"
+        - "no"
 
   - output_dir: $BITRISE_DEPLOY_DIR
     opts:
@@ -56,8 +56,22 @@ inputs:
 
         By default it's the `$BITRISE\_DEPLOY_DIR`
       is_required: "true"
+    
+  - install_branch: "develop"
+    opts:
+      title: Install branch of XCTestHTMLReport
+      summary: Select from which branch should the step install the tool
+      description: |
+        You can select from which branch do you want to install the XCTestHTMLReport.
+
+        **Master** for the stable version
+        **Develop** for the newest version
+      is_required: true
+      value_options:
+        - "develop"
+        - "master"
       
-  - verbose: "false"
+  - verbose: "no"
     opts:
       title: Enable verbose log?
       summary: Enable verbose log?
@@ -65,8 +79,8 @@ inputs:
         You can enable the verbose logging for troubleshooting purposes.
       is_required: true
       value_options:
-        - "true"
-        - "false"
+        - "yes"
+        - "no"
 
 outputs:
   - XC_HTML_REPORT:

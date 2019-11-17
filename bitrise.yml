@@ -13,6 +13,22 @@ app:
   - MULTIPLE_TEST_RESULT: "false"
 
 workflows:
+  ci_xcode_10:
+    description:
+      "Changing the install branch to master"
+    envs:
+    - INSTALL_BRANCH: "master"
+    after_run:
+    - ci
+
+  ci_xcode_11:
+    description:
+      "Changing the install branch to develop"
+    envs:
+    - INSTALL_BRANCH: "develop"
+    after_run:
+    - ci
+
   ci:
     before_run:
     - audit-this-step
@@ -51,8 +67,8 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
     - TEST_RESULT_PATH: ./Test.xcresult
-    - GENERATE_JUNIT: true
-    - VERBOSE: false
+    - GENERATE_JUNIT: "yes"
+    - VERBOSE: "yes"
     after_run:
     - common
     - run_test
@@ -61,8 +77,8 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
     - TEST_RESULT_PATH: ./Test.xcresult
-    - GENERATE_JUNIT: false
-    - VERBOSE: false
+    - GENERATE_JUNIT: "no"
+    - VERBOSE: "no"
     after_run:
     - common
     - run_test
@@ -74,8 +90,8 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
     - TEST_RESULT_PATH: ./Test.xcresult
-    - GENERATE_JUNIT: true
-    - VERBOSE: true
+    - GENERATE_JUNIT: "yes"
+    - VERBOSE: "yes"
     after_run:
     - common
     - run_test
@@ -84,8 +100,8 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
     - TEST_RESULT_PATH: ./Test.xcresult
-    - GENERATE_JUNIT: false
-    - VERBOSE: true
+    - GENERATE_JUNIT: "no"
+    - VERBOSE: "yes"
     after_run:
     - common
     - run_test
@@ -100,8 +116,8 @@ workflows:
         ./Test.xcresult
         ./Test_2.xcresult
         ./Test_3.xcresult
-    - GENERATE_JUNIT: true
-    - VERBOSE: false
+    - GENERATE_JUNIT: "yes"
+    - VERBOSE: "no"
     after_run:
     - common
     - run_test
@@ -113,8 +129,8 @@ workflows:
         ./Test.xcresult
         ./Test_2.xcresult
         ./Test_3.xcresult
-    - GENERATE_JUNIT: false
-    - VERBOSE: false
+    - GENERATE_JUNIT: "no"
+    - VERBOSE: "no"
     after_run:
     - common
     - run_test
@@ -129,8 +145,8 @@ workflows:
         ./Test.xcresult
         ./Test_2.xcresult
         ./Test_3.xcresult
-    - GENERATE_JUNIT: true
-    - VERBOSE: true
+    - GENERATE_JUNIT: "yes"
+    - VERBOSE: "yes"
     after_run:
     - common
     - run_test
@@ -142,8 +158,8 @@ workflows:
         ./Test.xcresult
         ./Test_2.xcresult
         ./Test_3.xcresult
-    - GENERATE_JUNIT: false
-    - VERBOSE: true
+    - GENERATE_JUNIT: "no"
+    - VERBOSE: "yes"
     after_run:
     - common
     - run_test
@@ -153,10 +169,12 @@ workflows:
     - path::./:
         title: Test one test result
         run_if: true
+        is_skippable: false
         inputs:
         - test_result_path: $TEST_RESULT_PATH
         - generate_junit: $GENERATE_JUNIT
         - verbose: $VERBOSE
+        - install_branch: $INSTALL_BRANCH
 
   generate_test:
     envs:

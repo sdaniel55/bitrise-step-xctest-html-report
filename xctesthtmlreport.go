@@ -1,8 +1,21 @@
 package main
 
-import "github.com/bitrise-io/go-utils/command"
+import (
+	"fmt"
 
-const xcHTMLReportRepository string = "https://raw.githubusercontent.com/TitouanVanBelle/XCTestHTMLReport/develop/xchtmlreport.rb"
+	"github.com/bitrise-io/go-utils/command"
+)
+
+// InstallBranch is the selected source branch of the XCHTMLReport repository
+type InstallBranch string
+
+// enum SourceBranch
+const (
+	Develop InstallBranch = "develop"
+	Master  InstallBranch = "master"
+)
+
+const xcHTMLReportRepository string = "https://raw.githubusercontent.com/TitouanVanBelle/XCTestHTMLReport/%s/xchtmlreport.rb"
 
 type xcTestHTMLReport struct {
 	verbose           bool
@@ -13,8 +26,8 @@ type xcTestHTMLReport struct {
 //
 // Reciever methods
 
-func (xcTestHTMLReport) installCmd() *command.Model {
-	return command.New("brew", "install", xcHTMLReportRepository)
+func (xcTestHTMLReport) installCmd(branch InstallBranch) *command.Model {
+	return command.New("brew", "install", fmt.Sprintf(xcHTMLReportRepository, branch))
 }
 
 func (x xcTestHTMLReport) convertToHTMReportCmd() *command.Model {
