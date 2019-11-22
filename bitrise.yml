@@ -66,7 +66,7 @@ workflows:
   test_one_test_result_with_junit:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
-    - TEST_RESULT_PATH: ./Test.xcresult
+    - TEST_RESULT_PATH: ./folder/sub_folder/Test.xcresult
     - GENERATE_JUNIT: "yes"
     - VERBOSE: "yes"
     after_run:
@@ -76,7 +76,7 @@ workflows:
   test_one_test_result_without_junit:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
-    - TEST_RESULT_PATH: ./Test.xcresult
+    - TEST_RESULT_PATH: ./folder/sub_folder/Test.xcresult
     - GENERATE_JUNIT: "no"
     - VERBOSE: "no"
     after_run:
@@ -89,7 +89,7 @@ workflows:
   test_one_test_result_with_junit_verbose:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
-    - TEST_RESULT_PATH: ./Test.xcresult
+    - TEST_RESULT_PATH: ./folder/sub_folder/Test.xcresult
     - GENERATE_JUNIT: "yes"
     - VERBOSE: "yes"
     after_run:
@@ -99,7 +99,7 @@ workflows:
   test_one_test_result_without_junit_verbose:
     envs:
     - MULTIPLE_TEST_RESULT: "false"
-    - TEST_RESULT_PATH: ./Test.xcresult
+    - TEST_RESULT_PATH: ./folder/sub_folder/Test.xcresult
     - GENERATE_JUNIT: "no"
     - VERBOSE: "yes"
     after_run:
@@ -113,9 +113,9 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "true"
     - TEST_RESULT_PATH: |
-        ./Test.xcresult
-        ./Test_2.xcresult
-        ./Test_3.xcresult
+        ./folder/sub_folder/Test.xcresult
+        ./folder/sub_folder/Test_2.xcresult
+        ./folder/sub_folder/Test_3.xcresult
     - GENERATE_JUNIT: "yes"
     - VERBOSE: "no"
     after_run:
@@ -126,9 +126,9 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "true"
     - TEST_RESULT_PATH: |
-        ./Test.xcresult
-        ./Test_2.xcresult
-        ./Test_3.xcresult
+        ./folder/sub_folder/Test.xcresult
+        ./folder/sub_folder/Test_2.xcresult
+        ./folder/sub_folder/Test_3.xcresult
     - GENERATE_JUNIT: "no"
     - VERBOSE: "no"
     after_run:
@@ -142,9 +142,9 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "true"
     - TEST_RESULT_PATH: |
-        ./Test.xcresult
-        ./Test_2.xcresult
-        ./Test_3.xcresult
+        ./folder/sub_folder/Test.xcresult
+        ./folder/sub_folder/Test_2.xcresult
+        ./folder/sub_folder/Test_3.xcresult
     - GENERATE_JUNIT: "yes"
     - VERBOSE: "yes"
     after_run:
@@ -155,9 +155,9 @@ workflows:
     envs:
     - MULTIPLE_TEST_RESULT: "true"
     - TEST_RESULT_PATH: |
-        ./Test.xcresult
-        ./Test_2.xcresult
-        ./Test_3.xcresult
+        ./folder/sub_folder/Test.xcresult
+        ./folder/sub_folder/Test_2.xcresult
+        ./folder/sub_folder/Test_3.xcresult
     - GENERATE_JUNIT: "no"
     - VERBOSE: "yes"
     after_run:
@@ -228,7 +228,8 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            cp -R $BITRISE_XCRESULT_PATH ./Test.xcresult
+            mkdir -p folder/sub_folder
+            cp -R $BITRISE_XCRESULT_PATH ./folder/sub_folder/Test.xcresult
     - script:
         run_if: '{{getenv "MULTIPLE_TEST_RESULT" | eq "true"}}'
         title: Copy & multiply Test.xcresult
@@ -236,9 +237,10 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            cp -R $BITRISE_XCRESULT_PATH ./Test.xcresult
-            cp -R $BITRISE_XCRESULT_PATH ./Test_2.xcresult
-            cp -R $BITRISE_XCRESULT_PATH ./Test_3.xcresult
+            mkdir -p folder/sub_folder
+            cp -R $BITRISE_XCRESULT_PATH ./folder/sub_folder/Test.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./folder/sub_folder/Test_2.xcresult
+            cp -R $BITRISE_XCRESULT_PATH ./folder/sub_folder/Test_3.xcresult
 
 
   # ----------------------------------------------------------------	
