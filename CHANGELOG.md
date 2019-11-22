@@ -1,6 +1,10 @@
-## Changelog (Current version: 0.2.0)
+## Changelog (Current version: 0.2.1)
 
 -----------------
+
+### 0.2.1 (2019 Nov 22)
+* [6af2534] prepare for 0.2.1
+* [bc75b12] Add new path for the generated index.html (#14)
 
 ### 0.2.0 (2019 Nov 17)
 * [743bded] prepare for 0.2.0
@@ -78,4 +82,4 @@
 
 -----------------
 
-Updated: 2019 Nov 17
+Updated: 2019 Nov 22
