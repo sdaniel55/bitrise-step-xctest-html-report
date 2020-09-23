@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"os/exec"
 	"path"
+	"strings"
 
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -38,6 +40,12 @@ func copy(sourcePath, outputDir string, errors *[]error) string {
 	}
 
 	return destinationPath
+}
+
+func installedInPath(name string) bool {
+	cmd := exec.Command("which", name)
+	outBytes, err := cmd.Output()
+	return err == nil && strings.TrimSpace(string(outBytes)) != ""
 }
 
 func failf(format string, v ...interface{}) {

@@ -15,17 +15,25 @@ app:
 workflows:
   ci_xcode_10:
     description:
-      "Changing the install branch to master"
+      "Using 1.7.0 version"
     envs:
-    - INSTALL_BRANCH: "master"
+    - VERSION: "1.7.0"
     after_run:
     - ci
 
   ci_xcode_11:
     description:
-      "Changing the install branch to develop"
+      "Using 2.0.0 version"
     envs:
-    - INSTALL_BRANCH: "develop"
+    - VERSION: "2.0.0"
+    after_run:
+    - ci
+
+  ci_xcode_12:
+    description:
+      "Using latest version"
+    envs:
+    - VERSION: "latest"
     after_run:
     - ci
 
@@ -174,7 +182,7 @@ workflows:
         - test_result_path: $TEST_RESULT_PATH
         - generate_junit: $GENERATE_JUNIT
         - verbose: $VERBOSE
-        - install_branch: $INSTALL_BRANCH
+        - version: $VERSION
 
   generate_test:
     envs:

@@ -8,16 +8,22 @@ import (
 
 	"github.com/bitrise-io/go-steputils/stepconf"
 	"github.com/bitrise-io/go-steputils/tools"
+	"github.com/bitrise-io/go-utils/errorutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
 
+const fallbackVersion = "2.0.0"
+
 // Config ...
 type Config struct {
+	// Authentication
+	GithubAccessToken stepconf.Secret `env:"github_access_token"`
+
 	// XCHTMLReport
-	TestResults   string        `env:"test_result_path,required"`
-	GenerateJUnit bool          `env:"generate_junit,opt[yes,no]"`
-	Branch        InstallBranch `env:"install_branch,opt[master,develop]"`
+	TestResults   string `env:"test_result_path,required"`
+	GenerateJUnit bool   `env:"generate_junit,opt[yes,no]"`
+	Version       string `env:"version,required"`
 
 	// Common
 	OutputDir string `env:"output_dir,dir"`
@@ -103,32 +109,99 @@ func main() {
 		failf("Failed to get current directory, error: %s", err)
 	}
 
+	version := cfg.Version
+	if version == "latest" {
+		log.Printf("Latest version selected, identify the latest version on Github")
+		release, err := latestGithubRelease(xcHTMLReportGithubOrg, xcHTMLReportGithubRepo, cfg.GithubAccessToken)
+		if err != nil {
+			log.Warnf("Failed to identify the latest Github release of the XCTestHTMLReport, error: %s\nTry to add Github Access Token to the step to avoid API rate limit.\nUsing the known latest version: %s", err, fallbackVersion)
+			version = fallbackVersion
+		} else {
+			version = release.TagName
+			fmt.Printf("Latest version: %s\n", version)
+		}
+	}
+
 	x := xcTestHTMLReport{
 		verbose:           cfg.Verbose,
 		generateJUnit:     cfg.GenerateJUnit,
 		resultBundlePaths: testResults,
+		version:           version,
 	}
 
 	//
-	// Install
-	{
-		log.Infof("Install XCTestHTMLReport via brew")
+	// Install via Brew
+	// Deprecated
+	// {
+	// 	log.Infof("Install XCTestHTMLReport via brew")
 
-		cmd := x.installCmd(cfg.Branch)
-		cmd.SetDir(dir).
-			SetStdout(os.Stdout).
-			SetStderr(os.Stderr)
+	// 	cmd := x.installCmd(cfg.Branch)
+	// 	cmd.SetDir(dir).
+	// 		SetStdout(os.Stdout).
+	// 		SetStderr(os.Stderr)
 
-		log.Printf("$ %s", cmd.PrintableCommandArgs())
+	// 	log.Printf("$ %s", cmd.PrintableCommandArgs())
 
-		if err := cmd.Run(); err != nil {
-			log.Warnf("Try to change the install branch of the XCTestHTMLReport")
-			failf("Failed to install XCTestHTMLReport, error: %s", err)
-		}
+	// 	if err := cmd.Run(); err != nil {
+	// 		log.Warnf("Try to change the install branch of the XCTestHTMLReport")
+	// 		failf("Failed to install XCTestHTMLReport, error: %s", err)
+	// 	}
 
-		log.Successf("XCTestHTMLReport successfully installed")
+	// 	log.Successf("XCTestHTMLReport successfully installed")
+	// 	fmt.Println()
+	// }
+
+	log.Infof("Check if XCTestHTMLReport installed")
+	if !installedInPath("xchtmlreport") {
+		log.Printf("Not installed yet")
 		fmt.Println()
+
+		// Install via install script
+		{
+			log.Infof("Install XCTestHTMLReport via install script")
+
+			log.Printf("Download install script from the XCTestHTMLReport repository and write it to the install.sh file")
+			script, err := x.installScript()
+			if err != nil {
+				failf("Failed to download the install script of the XCTestHTMLReport")
+			}
+			log.Debugf("Install script:\n%s\n", script)
+
+			log.Debugf("Write the install script to the install.sh file")
+			outFile, err := os.Create("install.sh")
+			// handle err
+			defer func() {
+				if cerr := outFile.Close(); err != nil {
+					log.Warnf("Failed to close the output file (install.sh) after writing in it, error: %v", cerr)
+				}
+			}()
+			_, err = outFile.WriteString(script)
+			if err != nil {
+				fmt.Printf("failed to write the install script to the install.sh file, error:  %v", err)
+			}
+
+			log.Debugf("Make executable the install.sh file")
+			if err := os.Chmod("install.sh", 0777); err != nil {
+				log.Errorf("failed to change access permission of the install.sh file, error: %v", err)
+			}
+
+			log.Printf("Running install.sh")
+			cmd := x.installViaScriptCmd(x.version)
+			cmd.SetDir(dir).
+				SetStdout(os.Stdout).
+				SetStderr(os.Stderr)
+
+			if err := cmd.Run(); err != nil {
+				if errorutil.IsExitStatusError(err) {
+					failf("Command `tojunit` failed to install, error: %s", err)
+				}
+				failf("Failed to run command `tojunit`, %s", err)
+			}
+		}
+	} else {
+		log.Successf("Already installed")
 	}
+	fmt.Println()
 
 	//
 	// Generate reports
@@ -137,6 +210,7 @@ func main() {
 		if cfg.GenerateJUnit {
 			info = "Generating html and JUnit report"
 		}
+
 		log.Infof(info)
 
 		cmd := x.convertToHTMReportCmd()

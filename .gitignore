@@ -1,2 +1,4 @@
 .bitrise*
 _tmp
+install.sh
+__MACOSX/._xchtmlreport

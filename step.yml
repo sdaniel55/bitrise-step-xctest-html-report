@@ -22,6 +22,15 @@ toolkit:
     package_name: github.com/BirmacherAkos/bitrise-step-xctest-html-report
 
 inputs:
+  - github_access_token:
+    opts:
+      title: Github Personal Access Token
+      summary: Use this input to avoid Github rate limit issues for the XCTestHTMLReport download
+      description: |-
+        Use this input to avoid Github rate limit issues.
+        See the github's guide: [Creating an access token for command-line use](https://help.github.com/articles/creating-an-access-token-for-command-line-use/).
+        __UNCHECK EVERY SCOPE BOX__ when creating this token. There is no reason this token needs access to private information.
+      is_sensitive: true
   - test_result_path: $BITRISE_XCRESULT_PATH
     opts:
       title: Xcode test result (.xctestresult) paths
@@ -57,15 +66,13 @@ inputs:
         By default it's the `$BITRISE\_DEPLOY_DIR`
       is_required: "true"
     
-  - install_branch: "develop"
+  - version: "latest"
     opts:
-      title: Install branch of XCTestHTMLReport
-      summary: Select from which branch should the step install the tool
+      title: Version of the XCTestHTMLReport
+      summary: Select which version to install
       description: |
-        You can select from which branch do you want to install the XCTestHTMLReport.
-
-        **Master** for the stable version
-        **Develop** for the newest version
+        The version of XCTestHTMLReport you want to use from https://github.com/TitouanVanBelle/XCTestHTMLReport/releases.
+        If the value is set to `latest`, the step will download to the latest XCTestHTMLReport version.
       is_required: true
       value_options:
         - "develop"
