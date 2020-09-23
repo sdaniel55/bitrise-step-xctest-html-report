@@ -24,10 +24,10 @@ toolkit:
 inputs:
   - test_result_path: $BITRISE_XCRESULT_PATH
     opts:
-      title: Xcode test result (.xctesresult) paths
-      summary: The paths of the Xcode test generated .xctesresult files.
+      title: Xcode test result (.xctestresult) paths
+      summary: The paths of the Xcode test generated .xctestresult files.
       description: |-
-        The paths of the Xcode test generated .xctesresult files.
+        The paths of the Xcode test generated .xctestresult files.
 
         **Separated by a new line**
 
