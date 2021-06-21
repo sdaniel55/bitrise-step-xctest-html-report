@@ -88,5 +88,7 @@ func convertToHTMReportArgs(x xcTestHTMLReport) []string {
 		args = append(args, "-v")
 	}
 
+	args = append(args, "-i")
+
 	return args
 }
